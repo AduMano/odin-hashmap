@@ -192,16 +192,16 @@ print 'get("franchise"): '
 puts (franchise.nil? ? 'nil' : franchise).to_s.colorize(:yellow)
 
 # Print Zero's Set
-puts "\n========================================================="
-puts "Game: #{hashmap.get('series').colorize(:green)}"
+puts "\n> Get Values ===============================================".colorize(:red)
+puts "Game: #{hashmap.get('series').colorize(:yellow)}"
 puts "\nName: #{hashmap.get('name').colorize(:yellow)}"
 puts "Hair Color: #{hashmap.get('hair_color').colorize(:yellow)}"
-puts "Health: #{hashmap.get('vitality_points').to_s.colorize(:red)}"
+puts "Health: #{hashmap.get('vitality_points').to_s.colorize(:yellow)}"
 puts "Code Name: #{hashmap.get('code_name').colorize(:yellow)}"
 puts 'Armor: '
-puts "  Head: #{hashmap.get('head_part').colorize(:green)}"
-puts "  Body: #{hashmap.get('body_part').colorize(:red)}"
-puts "  Foot: #{hashmap.get('foot_part').colorize(:blue)}"
+puts "  Head: #{hashmap.get('head_part').colorize(:yellow)}"
+puts "  Body: #{hashmap.get('body_part').colorize(:yellow)}"
+puts "  Foot: #{hashmap.get('foot_part').colorize(:yellow)}"
 puts "Navigator: #{hashmap.get('navigator').colorize(:yellow)}"
 puts 'Weapon: '
 puts "  Main: #{hashmap.get('main_weapon').colorize(:yellow)}"

@@ -12,7 +12,7 @@ class LinkedList
     @size = 0
   end
 
-  def append(key, value, new_node = Node.new(key, value), current = @head)
+  def append(key, value = nil, new_node = Node.new(key, value), current = @head)
     current.nil? ? @head = new_node : tail.link = new_node
 
     @size += 1
