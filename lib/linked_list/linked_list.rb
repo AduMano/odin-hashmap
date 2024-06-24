@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 require_relative('node')
 
@@ -55,6 +55,7 @@ class LinkedList
   end
 
   def find(key, index = 0, current = @head)
+    return nil if current.nil?
     return index if current.key.eql?(key)
     return nil if current.link.nil?
 
@@ -64,7 +65,7 @@ class LinkedList
   def to_s(current = @head, output = '')
     return output << 'nil' if current.nil?
 
-    output += "(#{current.key}: #{current.value}) -> "
+    output += "(Key: #{current.key}, Value: #{current.value}), -> "
     to_s(current.link, output)
   end
 
@@ -87,13 +88,35 @@ class LinkedList
     if index.eql?(0)
       @head = current.link
       @size -= 1
-      return true
+      return current
     elsif index.eql?(accumulator + 1)
-      current.link = current.link.link
+      disposed_node = current.link
+      current.link = disposed_node.link
       @size -= 1
-      return true
+      return disposed_node
     end
 
     remove_at(index, accumulator + 1, current.link)
+  end
+
+  def keys(keys = Array.new(@size), accumulator = 0, current = @head)
+    return keys if accumulator >= @size
+
+    keys[accumulator] = current.key
+    keys(keys, accumulator + 1, current.link)
+  end
+
+  def values(values = Array.new(@size), accumulator = 0, current = @head)
+    return values if accumulator >= @size
+
+    values[accumulator] = current.value
+    values(values, accumulator + 1, current.link)
+  end
+
+  def entries(entries = Array.new(@size), accumulator = 0, current = @head)
+    return entries if accumulator >= @size
+
+    entries[accumulator] = [current.key, current.value]
+    entries(entries, accumulator + 1, current.link)
   end
 end
