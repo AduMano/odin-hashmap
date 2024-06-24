@@ -4,12 +4,13 @@ require_relative('linked_list/linked_list')
 
 # HashMap Class
 class HashMap
-  attr_accessor :buckets, :capacity
+  attr_accessor :buckets, :capacity, :length
 
   def initialize(load_factor = 0.8)
     @capacity = 16
     @load_factor = load_factor
     @buckets = Array.new(@capacity) { LinkedList.new }
+    @length = 0
   end
 
   def hash(key)
@@ -21,35 +22,37 @@ class HashMap
     hash_code
   end
 
-  def handle_load_factor
-    if length >= (@capacity * @load_factor).round
+  def handle_load_factor(type)
+    if @length >= (@capacity * @load_factor).round && type.eql?('add')
+      data = entries
       @capacity *= 2
-      update_capacity
-    elsif length < ((@capacity / 2) * @load_factor).round && @capacity >= 32
+      update_bucket(data)
+    elsif @length < ((@capacity / 2) * @load_factor).round && @capacity >= 32 && type.eql?('remove')
+      data = entries
       @capacity /= 2
-      update_capacity
+      update_bucket(data)
     end
   end
 
-  def update_capacity
-    buckets_copy = @buckets.clone
-    @buckets = Array.new(@capacity) do |index|
-      @buckets[index] = buckets_copy[index].nil? ? LinkedList.new : buckets_copy[index]
-    end
+  def update_bucket(data)
+    @length = 0
+    @buckets = Array.new(@capacity) { LinkedList.new }
+    data.each { |entry| set(entry[0], entry[1]) }
   end
 
   def set(key, value)
     location = hash(key) % @capacity
     list = @buckets[location]
+    node = list.find(key)
 
-    if list.contains?(key)
-      node = list.find(key)
-      node.nil? ? list.append(key, value) : list.at(node).value = value
+    if list.contains?(key) && !node.nil?
+      list.at(node).value = value
     else
       list.append(key, value)
+      @length += 1
     end
 
-    handle_load_factor
+    handle_load_factor('add')
   end
 
   def get(key)
@@ -62,8 +65,6 @@ class HashMap
 
   def has?(key)
     list = @buckets[hash(key) % @capacity]
-    puts hash(key) % @capacity
-    puts @buckets.length
 
     list.contains?(key)
   end
@@ -73,21 +74,17 @@ class HashMap
 
     list = @buckets[hash(key) % @capacity]
     node_index = list.find(key)
-    handle_load_factor
+    @length -= 1
+    removed_key = list.remove_at(node_index)
+    handle_load_factor('remove')
 
-    list.remove_at(node_index)
-  end
-
-  def length(size = 0, index = 0)
-    return size + @buckets[index].size if index.eql?(@capacity - 1)
-
-    length(size + @buckets[index].size, index + 1)
+    removed_key
   end
 
   def clear
     @capacity = 16
     @buckets = Array.new(@capacity) { LinkedList.new }
-
+    @length = 0
     true
   end
 
@@ -95,7 +92,7 @@ class HashMap
     return keys if index >= @capacity
 
     list = @buckets[index]
-    keys = keys.union(list.keys) unless list.size.zero? # rubocop:disable Style/ZeroLengthPredicate
+    keys = keys.union(list.keys) unless list.size.eql?(0)
 
     keys(keys, index + 1)
   end
@@ -104,16 +101,16 @@ class HashMap
     return values if index >= @capacity
 
     list = @buckets[index]
-    values = values.union(list.values) unless list.size.zero?
+    values = values.union(list.values) unless list.size.eql?(0)
 
     values(values, index + 1)
   end
 
   def entries(entries = [], index = 0)
-    return entries if index >= @capacity
+    return entries if index >= @capacity || @length.zero?
 
     list = @buckets[index]
-    entries = entries.union(list.entries) unless list.size.zero?
+    entries = entries.union(list.entries) unless list.size.eql?(0)
     entries(entries, index + 1)
   end
 end
